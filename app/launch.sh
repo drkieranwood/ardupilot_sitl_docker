@@ -22,7 +22,8 @@ fi
 
 if [ -z "$SITL_OPTS" ]
 then
-  SITL_OPTS='--model=quad --defaults=/home/pilot/ardupilot/Tools/autotest/default_params/copter.parm'
+  #SITL_OPTS='--model=quad --defaults=/home/pilot/ardupilot/Tools/autotest/default_params/copter.parm'
+  SITL_OPTS='--model=quad --defaults=/home/pilot/app/copter.parm'
 fi
 
 echo "LAUNCH.SH: /home/pilot/ardupilot/build/sitl/bin/$SITL_EXE --sysid=$SYSID --home=$STARTPOSE $SITL_OPTS &"
@@ -38,4 +39,5 @@ fi
 echo "LAUNCH.SH: Will send MAVLINK to $MAVLINK_OUT"
 
 echo "LAUNCH.SH: mavproxy.py --non-interactive --target-system=$SYSID --master=tcp:0.0.0.0:5760 --out=$MAVLINK_OUT"
-mavproxy.py --non-interactive --target-system=$SYSID --master=tcp:0.0.0.0:5760 --out=$MAVLINK_OUT
+#mavproxy.py --non-interactive --target-system=$SYSID --master=tcp:0.0.0.0:5760 --out=$MAVLINK_OUT
+../mavp2p tcpc:0.0.0.0:5760 udpc:$(getent hosts $MAVLINK_OUT_HOST | awk '{print $1}'):14553

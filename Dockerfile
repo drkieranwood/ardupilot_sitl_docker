@@ -17,6 +17,8 @@ USER pilot
 WORKDIR /home/pilot
 
 RUN git clone --recursive --depth 1 https://github.com/ArduPilot/ardupilot.git
+RUN wget https://github.com/aler9/mavp2p/releases/download/v0.6.5/mavp2p_v0.6.5_linux_amd64.tar.gz
+RUN tar -xvzf mavp2p_v0.6.5_linux_amd64.tar.gz
 
 WORKDIR ardupilot
 
