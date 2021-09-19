@@ -1,5 +1,6 @@
 #!/bin/bash 
-sleep 15
+#Wait to allow the ip file erase to occur
+sleep 10
 o="../ips/sitl_ip.txt"
 #ip a
 if [ -z "$SYSID" ]
@@ -28,10 +29,8 @@ fi
 
 if [ -z "$SITL_OPTS" ]
 then
-  #SITL_OPTS='--model=quad --defaults=/home/pilot/ardupilot/Tools/autotest/default_params/copter.parm'
   SITL_OPTS='--model=quad --defaults=/home/pilot/app/copter.parm'
 fi
 
-echo "LAUNCH.SH: /home/pilot/ardupilot/build/sitl/bin/$SITL_EXE --sysid=$SYSID --home=$STARTPOSE $SITL_OPTS &"
-#/home/pilot/ardupilot/build/sitl/bin/$SITL_EXE --sysid=$SYSID --home=$STARTPOSE $SITL_OPTS &
+echo "LAUNCH.SH: /home/pilot/ardupilot/build/sitl/bin/$SITL_EXE --sysid=$SYSID --home=$STARTPOSE $SITL_OPTS"
 /home/pilot/ardupilot/build/sitl/bin/$SITL_EXE --sysid=$SYSID --home=$STARTPOSE $SITL_OPTS
