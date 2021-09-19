@@ -16,7 +16,7 @@ The ```copter=5``` argument indicates the number of agents. The system will reli
 
 Then connect a multi-agent GCS or control script to ```tcpc:127.0.0.1:14555```. Here is the Mission Planner with 18 agents.
 
-![Mission planner startup screenshot](mission_planner_start.png)
+![Mission planner startup screenshot](mission_planner_start2.png)
 
 There is currently a bug with the container shutdown process which leaves orphaned processes which then cause subsequent Docker up commands to fail. If this happens the Docker environment can be cleared up with:
 
