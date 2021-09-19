@@ -1,6 +1,41 @@
 # Ardupilot SITL Docker
 
-(Yet another) container for Ardupilot Software-in-the-Loop simulation.  This one targets multi-vehicle simulation by exploiting the new (Oct 2020) capability in [Ardupilot](https://github.com/ArduPilot/ardupilot) to set the System ID via the command line.  Details are in [this commit](https://github.com/ArduPilot/ardupilot/commit/466a430c4f19cc9e18c36e8f1e6a558d5f1f64f8).
+Docker image/container for multi-agent Ardupilot Software-in-the-Loop simulation. This one targets multi-vehicle simulation by exploiting the new (Oct 2020) capability in [Ardupilot](https://github.com/ArduPilot/ardupilot) to set the System ID via the command line.  Details are in [this commit](https://github.com/ArduPilot/ardupilot/commit/466a430c4f19cc9e18c36e8f1e6a558d5f1f64f8).
+
+## Build and run local (tested on Windows)
+
+Rather than pull froma docker hub, this simulation has been configured to run locally. After cloning the repo. First run the following command to build the Docker image:
+
+ ```docker build -t ardupilot-sitl-docker .```
+ 
+Then run a multi-agent simulation using.
+
+```docker compose -f docker-compose.gateway.udp.yml up --scale copter=5```
+
+The ```copter=5``` argument indicates the number of agents. The system will reliably work upto ~18 agents. **To ensure reliability of the launch process, there is a 40s wait before the MAVLink routing gateway is running.** This is hardcoded for now.
+
+Then connect a multi-agent GCS or control script to ```tcpc:127.0.0.1:14555```. Here is the Mission Planner with 18 agents.
+
+![Mission planner startup screenshot](mission_planner_start.png)
+
+There is currently a bug with the container shutdown process which leaves orphaned processes which then cause subsequent Docker up commands to fail. If this happens the Docker environment can be cleared up with:
+
+```docker compose down```
+```docker container prune```
+
+## Updates
+
+* All uses of MAVProxy have been removed and replaced with [mavp2p](https://github.com/aler9/mavp2p).
+* The multi-layer MAVLink message routing has been simplified to use a single gateway router connected directly to the container SITL instances. This significantly reduced CPU load and reduced unnessesary message routing.
+* The SITL is no longer staretd as a background service to prevent orphaned SITL instances.
+* Automatic starting locations now at Fenswood Farm in Bristol.
+* (work in progress) The ```copter.parm``` file has been embedded in the Docker image to allow for custom vehicle setups. 
+
+## Original branch
+
+This work was branched from (https://github.com/arthurrichards77/ardupilot_sitl_docker) and the original instructions are below. This branch has been optimised specifically for multi-agent simulation, hence some of the original features might now be broken. It is recomended that the ```docker-compose.gateway.udp.yml``` always be used to start the containers.
+
+
 
 ## Copter Simulation (Default Behaviour)
 
@@ -51,11 +86,7 @@ Use the UDP gateway stack and launch via ```docker-compose -f docker-compose.gat
 
 Then fire up Mission Planner, select UDPCl (UDP client) as the connection type at top right, and hit connect.  Enter 127.0.0.1 as host and 14554 as port number.  It is rather slow to get going as downloading three sets of params takes on the order of a minute.  You should see three copters as below.
 
-![Mission planner startup screenshot](mission_planner_start.png)
-
 You can fly the drones around by hand, using Guided mode.  Use the drop-down box at the top right to choose which drone you're talking to.  It's rather slow - be prepared to have to repeat commands.
-
-| TODO: investigate reducing data rate and using alternative MAVLINK gateways such as [mavp2p](https://github.com/aler9/mavp2p) or [MAVLink router](https://github.com/intel/mavlink-router).
 
 
 ### QGroundControl on Linux
@@ -68,19 +99,14 @@ The launch QGC and add a connection on UDP listening to port 14553.  You should 
 
 | The combination of Linux and QGC seems to allow the UDP stream to be picked up outside Docker.  I couldn't reproduce this on Windows or Mission Planner so it should be regarded as brittle.
 
-| TODO: screenshots for Linux
-
-###
-
 ## Environment Variable Reference
 
 The default command of the container runs a [launch script](https://github.com/arthurrichards77/ardupilot_sitl_docker/blob/master/app/launch.sh) which employs environment variables to enable customization.  The full list of these is below, including their default settings.  Of course, everything can be customized by overriding the command via Docker.
 
 * SYSID : the target system ID, i.e. ```--sysid``` of the drone in the range 1-255 : default is the last number of the IP address
-* STARTPOSE : the ```--home``` location for the drone in format lat,lon,alt,yaw : default is line $SYSID from the file [app/starts.txt](https://github.com/arthurrichards77/ardupilot_sitl_docker/blob/master/app/starts.txt)
+* STARTPOSE : the ```--home``` location for the drone in format lat,lon,alt,yaw 
 * SITL_EXE : the executable filename from Ardupilot's ```/build/sitl/bin``` folder : default is ```arducopter```
 * SITL_OPTS : options for SITL besides ```--home``` and ```-sysid```: default is ```--model=quad --defaults=/home/pilot/ardupilot/Tools/autotest/default_params/copter.parm```
-* MAVLINK_OUT : forwarding address for MAVLINK packets, in format of ```--out``` [option for MAVProxy](https://ardupilot.org/mavproxy/docs/getting_started/starting.html) : default is ```udp:$GATEWAY_IP:14553``` where ```$GATEWAY_IP``` is the address of the Docker network gateway to the host.
 
 ## Similar Work
 
