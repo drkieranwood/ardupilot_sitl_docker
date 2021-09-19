@@ -1,16 +1,35 @@
 version: "3.9"
 services:
+  erase:
+    image: ardupilot-sitl-docker
+    container_name: erase
+    command: bash -C '/home/pilot/app/clear_ips.sh'
+    volumes:
+      - shared-content:/home/pilot/ips
   copter:
     environment:
       - MAVLINK_OUT_HOST=mavgw
     #build local images  with  "docker build -t ardupilot-sitl-docker ."
     #(don't forget to sync WSL clock with "sudo hwclock -s" in Ubuntu terminal)
     image: ardupilot-sitl-docker
+    depends_on:
+      - "erase"
+    volumes:
+      - shared-content:/home/pilot/ips
   mavgw:
     image: ardupilot-sitl-docker
     container_name: mavgw
-    command: ../mavp2p --hb-systemid=123 udps:0.0.0.0:14553 tcps:0.0.0.0:14554 tcps:0.0.0.0:14555
+    depends_on:
+      - "erase"
+      - "copter"
+    #command: ../mavp2p --hb-systemid=123 udps:0.0.0.0:14553 tcps:0.0.0.0:14554 tcps:0.0.0.0:14555
+    command: bash -C '/home/pilot/app/gateway.sh'
     ports:
       - "14554:14554/tcp"
       - "14555:14555/tcp"
+    volumes:
+      - shared-content:/home/pilot/ips
+      
+volumes:
+  shared-content:
         

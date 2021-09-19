@@ -7,12 +7,12 @@ RUN apt-get install -y g++
 RUN apt-get install -y ccache gawk make wget cmake
 RUN apt-get install -y python-pip
 RUN apt-get install -y iproute2
+RUN apt-get install -y nano
+RUN apt-get install -y dos2unix
 
 RUN pip install future lxml pymavlink MAVProxy pexpect
 
-RUN useradd --create-home pilot
-
-USER pilot
+RUN mkdir /home/pilot
 
 WORKDIR /home/pilot
 
@@ -35,5 +35,10 @@ RUN mkdir app
 COPY app app
 
 WORKDIR app
+
+RUN dos2unix launch.sh
+RUN dos2unix starts.txt
+RUN dos2unix clear_ips.sh
+RUN dos2unix gateway.sh
 
 CMD ./launch.sh
