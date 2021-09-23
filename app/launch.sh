@@ -6,12 +6,15 @@ o="../ips/sitl_ip.txt"
 if [ -z "$SYSID" ]
 then
   echo "LAUNCH.SH: taking SYSID from IP address"
-  SYSID=$(ip a | grep -o -m 1 172.[0123456789]*.0.[0123456789]* | grep -o -m 1 [0123456789]*$)
+  SYSID=$(ip a | grep -E -o -m 1 "172.[0-9]{1,3}.0.[0-9]{1,3}" | grep -o -m 1 [0123456789]*$)
   #Need to ensure the IPs are all written to file without conflict, hence use a lock to ensure sequential write
-  sleep $SYSID
-  echo "=+=+=+=+=+=Writing IP $SYSID to file..."
-  flock $o echo $(ip a | grep -o -m 1 172.[0123456789]*.0.[0123456789]*) >> $o
-  echo "=+=+=+=+=+=    ... done"
+  #sleep $SYSID
+  echo "=+=+=+=+=+=+=+=+=+=+=+="
+  echo "Writing IP $SYSID to file..."
+  SYS_IP=$(ip a | grep -E -o -m 1 "172.[0-9]{1,3}.0.[0-9]{1,3}")
+  echo $SYS_IP
+  flock $o echo $(ip a | grep -E -o -m 1 "172.[0-9]{1,3}.0.[0-9]{1,3}" ) >> $o
+  echo "=+=+=+=+=+=+=+=+=+=+=+="
 fi
 echo "LAUNCH.SH: System ID will be $SYSID"
 
