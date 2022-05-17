@@ -10,7 +10,7 @@ RUN apt-get install -y iproute2
 RUN apt-get install -y nano
 RUN apt-get install -y dos2unix
 
-RUN pip install future lxml pymavlink MAVProxy pexpect
+RUN pip install future lxml pymavlink MAVProxy pexpect empy
 
 RUN mkdir /home/pilot
 
