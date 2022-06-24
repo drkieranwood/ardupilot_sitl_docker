@@ -17,7 +17,7 @@ cat $o
 cmd="../mavp2p --hb-systemid=126 --streamreq-frequency=2 "
 pre="tcpc:"
 post=":5760 "
-out="tcps:0.0.0.0:14554 tcps:0.0.0.0:14555"
+out="tcps:0.0.0.0:14554 tcps:0.0.0.0:14555 udps:0.0.0.0:14556"
 
 while read -r p
 do
