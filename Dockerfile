@@ -1,16 +1,13 @@
-FROM ubuntu:18.04
+FROM ubuntu:22.04
 
 RUN apt-get update -y
-
-RUN apt-get install -y git python
+RUN apt-get install -y git python3
+RUN apt-get install -y python-pip
+RUN apt-get install -y python3-dev
+RUN apt-get install -y python3-pip
+RUN apt-get install -y python-is-python3
 RUN apt-get install -y g++
 RUN apt-get install -y ccache gawk make wget cmake
-RUN apt-get install -y python-pip
-RUN apt-get install -y iproute2
-RUN apt-get install -y nano
-RUN apt-get install -y dos2unix
-
-RUN pip install future lxml pymavlink MAVProxy pexpect empy
 
 RUN mkdir /home/pilot
 
@@ -22,7 +19,14 @@ RUN tar -xvzf mavp2p_v0.6.5_linux_amd64.tar.gz
 
 WORKDIR ardupilot
 
-RUN ./waf configure
+RUN apt-get install -y iproute2
+RUN apt-get install -y nano
+RUN apt-get install -y dos2unix
+RUN pip install future lxml pymavlink MAVProxy pexpect
+RUN pip3 install empy==3.3.4
+RUN pip3 install future pexpect
+
+RUN ./waf configure --board sitl
 
 RUN ./waf copter
 

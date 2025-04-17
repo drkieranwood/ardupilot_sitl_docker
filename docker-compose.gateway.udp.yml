@@ -17,6 +17,16 @@ services:
     volumes:
       - shared-content:/home/pilot/ips
       
+#  quadp:
+#    image: ardupilot-sitl-docker
+#    environment:
+#      - SITL_EXE=arduplane
+#      - SITL_OPTS=--model quadplane --defaults=/home/pilot/app/quadplane.parm
+#    depends_on:
+#      - "erase"
+#    volumes:
+#      - shared-content:/home/pilot/ips
+      
   mavgw:
     image: ardupilot-sitl-docker
     container_name: mavgw
