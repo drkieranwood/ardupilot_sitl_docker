@@ -71,7 +71,7 @@ services:
     image: ardupilot-sitl-docker
     container_name: mavgw
     entrypoint: /bin/sh
-    command: -c "/home/pilot/app/gateway.sh 2"
+    command: -c "/home/pilot/app/gateway.sh 10"
     depends_on:
       erase:
         condition: service_completed_successfully
