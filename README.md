@@ -11,8 +11,10 @@ Rather than pull from a docker hub, this simulation has been configured to run l
 Then run a multi-agent simulation using:
 
 ```docker compose -f docker-compose.gateway.yml up --scale copter=5 --scale plane=5 --scale quadp=5```
+or 
+```docker compose -f docker-compose.gateway.yml up --scale copter=5 --scale plane=5 --scale quadp=5 --detach```
 
-The ```copter=5``` type arguments indicates the number of agents of various types. The system will reliably work up to ~18 agents (total across all frame types). If you only want a particular type, the others must be scaled to zero i.e. for no planes ```--scale plane=0```
+The ```copter=5``` type arguments indicates the number of agents of various types. The system will reliably work up to ~18 agents (total across all frame types). If you only want a particular type, the others must be scaled to zero i.e. for no planes ```--scale plane=0```. The ```--detach``` option runs everything in the background.
 
 There are two similar Docker compose scripts. 
 * ```docker-compose.gateway.yml``` sets a 2Hz update rate from all agents. Best for larger swarms/groups (5+ agents)
@@ -33,9 +35,9 @@ Here is ax example of Mission Planner connected to 18 agents using ```tcpc:127.0
 
 Don't forget to first ARM the vehicle, then issue a TAKEOFF command before the automatic disarm timeout (~10 seconds). You can fly the drones around by hand, using Guided mode. Use the drop-down box at the top right to choose which drone you're talking to. 
 
-There is currently a bug with the container shutdown process which leaves orphaned processes which then cause subsequent Docker up commands to fail. If this happens the Docker environment can be cleared up with:
+The Docker containers (i.e. each SITL of the drone swarm) should be terminated using (assuming the --detach option was used in the startup):
 
-```docker compose down```
+```docker compose -f .\docker-compose.gateway.yml down```
 
 ```docker container prune```
 
