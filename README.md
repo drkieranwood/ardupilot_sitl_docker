@@ -14,6 +14,10 @@ Then run a multi-agent simulation using:
 
 The ```copter=5``` type arguments indicates the number of agents of various types. The system will reliably work up to ~18 agents (total across all frame types). If you only want a particular type, the others must be scaled to zero i.e. for no planes ```--scale plane=0```
 
+There are two similar Docker compose scripts. 
+* ```docker-compose.gateway.yml``` sets a 2Hz update rate from all agents. Best for larger swarms/groups (5+ agents)
+* ```docker-compose.gateway_fast.yml``` sets a 10Hz update rate. Best for smaller 'cooperative' groups (2-4 agents)
+
 There is a small delay between the compose command and the vehicles being 'ready-to-fly'. There are delays with the docker startup and also the ardupilot EFK/position estimates. Approximatly 1 minute is usually enough time before a 'takeoff' command can be sent.
 
 All of the individual MAVLink streams are combined into a single IP based stream using mavp2p. There are streams available on the host system via the local host (0.0.0.0 in Linux, 127.0.0.1 Windows)
