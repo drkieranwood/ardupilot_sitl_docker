@@ -1,26 +1,38 @@
 # Ardupilot SITL Docker
 
-Docker image/container for multi-agent Ardupilot Software-in-the-Loop simulation. This one targets multi-vehicle simulation by exploiting the new (Oct 2020) capability in [Ardupilot](https://github.com/ArduPilot/ardupilot) to set the System ID via the command line.  Details are in [this commit](https://github.com/ArduPilot/ardupilot/commit/466a430c4f19cc9e18c36e8f1e6a558d5f1f64f8).
+Docker image/container for multi-agent Ardupilot Software-in-the-Loop simulation. This one targets multi-vehicle simulation by exploiting the new (Oct 2020) capability in [Ardupilot](https://github.com/ArduPilot/ardupilot) to set the System ID via the command line.  
 
 ## Build and run local (tested on Windows)
 
-Rather than pull froma docker hub, this simulation has been configured to run locally. After cloning the repo. First run the following command to build the Docker image:
+Rather than pull from a docker hub, this simulation has been configured to run locally. After cloning the repo. First run the following command to build the Docker image:
 
  ```docker build -t ardupilot-sitl-docker .```
  
-Then run a multi-agent simulation using.
+Then run a multi-agent simulation using:
 
-```docker compose -f docker-compose.gateway.udp.yml up --scale copter=5```
+```docker compose -f docker-compose.gateway.yml up --scale copter=5 --scale plane=5 --scale quadp=5```
 
-The ```copter=5``` argument indicates the number of agents. The system will reliably work upto ~18 agents. **To ensure reliability of the launch process, there is a 40s wait before the MAVLink routing gateway is running.** This is hardcoded for now.
+The ```copter=5``` type arguments indicates the number of agents of various types. The system will reliably work up to ~18 agents (total across all frame types). If you only want a particular type, the others must be scaled to zero i.e. for no planes ```--scale plane=0```
 
-Then connect a multi-agent GCS or control script to ```tcpc:127.0.0.1:14555```. Here is the Mission Planner with 18 agents.
+There is a small delay between the compose command and the vehicles being 'ready-to-fly'. There are delays with the docker startup and also the ardupilot EFK/position estimates. Approximatly 1 minute is usually enough time before a 'takeoff' command can be sent.
+
+All of the individual MAVLink streams are combined into a single IP based stream using mavp2p. There are streams available on the host system via the local host (0.0.0.0 in Linux, 127.0.0.1 Windows)
+* tcps:0.0.0.0:14554
+* tcps:0.0.0.0:14555
+* udps:0.0.0.0:14556
+
+This allows a GCS application (such as MissionPlanner) to connect in parallel to an experimental control script (such as pymavlink, MAVSDK, etc). 
+
+Here is ax example of Mission Planner connected to 18 agents using ```tcpc:127.0.0.1:14555```.
 
 ![Mission planner startup screenshot](mission_planner_start2.png)
+
+Don't forget to first ARM the vehicle, then issue a TAKEOFF command before the automatic disarm timeout (~10 seconds). You can fly the drones around by hand, using Guided mode. Use the drop-down box at the top right to choose which drone you're talking to. 
 
 There is currently a bug with the container shutdown process which leaves orphaned processes which then cause subsequent Docker up commands to fail. If this happens the Docker environment can be cleared up with:
 
 ```docker compose down```
+
 ```docker container prune```
 
 ## Updates
@@ -29,75 +41,15 @@ There is currently a bug with the container shutdown process which leaves orphan
 * The multi-layer MAVLink message routing has been simplified to use a single gateway router connected directly to the container SITL instances. This significantly reduced CPU load and reduced unnessesary message routing.
 * The SITL is no longer staretd as a background service to prevent orphaned SITL instances.
 * Automatic starting locations now at Fenswood Farm in Bristol.
-* (work in progress) The ```copter.parm``` file has been embedded in the Docker image to allow for custom vehicle setups. 
+* (work in progress) The ```copter.parm``` file has been embedded in the Docker image to allow for custom vehicle setups.
+* Three vehicle types can now be run in parallel - quadcopter, plane, quadplane.
+* Significantly reduced the startup time. No need for a 40s dealy now.
 
 ## Original branch
 
 This work was branched from (https://github.com/arthurrichards77/ardupilot_sitl_docker) and the original instructions are below. This branch has been optimised specifically for multi-agent simulation, hence some of the original features might now be broken. It is recomended that the ```docker-compose.gateway.udp.yml``` always be used to start the containers.
 
 
-
-## Copter Simulation (Default Behaviour)
-
-By default, the container launches a copter SITL instance plus an accompanying Mavproxy.py instance, which forwards the Mavlink stream to a common UDP port.  The copter will get its system ID from the last number of its Docker IP address, ensuring unique identities.  By default, that port is 14553 on the gateway.  Hence the following runs a single SITL:
-
-```docker run arthurrichards77/ardupilot-sitl-docker:latest```
-
-Then connect your multi-UAV-capable ground station as a listener to udp:localhost:14553 and you should get the data.  Repeat the ```docker run``` command and you should see more copters appear on your GCS.  I've tested using [QGroundControl](http://qgroundcontrol.com/).
-
-## Plane Simulation
-
-The container enables some customization via environment variables, including the SITL executable and command line options.  For example, the following runs a plane simulation.
-
-```docker run -e SITL_EXE=arduplane -e SITL_OPTS='--model=plane --defaults=/home/pilot/ardupilot/Tools/autotest/default_params/plane.parm' arthurrichards77/ardupilot-sitl-docker:latest```
-
-## Scaling up
-
-Several [docker-compose](https://docs.docker.com/compose/) files are provided to support scaling up simulations.  The default ```docker-compose.yml``` includes only copters, enabling the following as a way to launch multiple copters at once:
-
-```docker-compose up --scale copter=9```
-
-An alternative ```docker-compose.planes.yml``` enables multiple planes:
-
-```docker-compose -f docker-compose.planes.yml up --scale plane=5```
-
-A final ```docker-compose.mix.yml``` covers both at the same time.
-
-```docker-compose -f docker-compose.mix.yml up --scale plane=3 --scale copter=4```
-
-| QGroundControl will struggle with this, as it appears to assume all UAVs are of the same type.  For example, you'll only get Copter modes in the drop-down.
-
-```docker-compose.gateway.udp.yml``` provides an additional MAVProxy service to route all MAVLINK to a common UDP port, 14554, which is exposed to the outside world from Docker.  Connect your GCS as a UDP client to this port.
-
-| An experimental ```docker-compose.gateway.yml``` provides an additional MAVProxy service to route all MAVLINK to a TCP server.  I thought this would be an easier way to connect than intercepting UDP streams, especially for ambitions to run this in the cloud.  However, it has extreme latency problems, to the point of beng unusable.
-| Also ```docker-compose.gateway.pull.yml``` pulls the image from Docker hub instead of building it locally.
-
-## Examples
-
-Different GCS software appears to have different quirks regarding types of network connections.  These are the combinations I've got working.
-
-### Mission Planner on Windows
-
-Installation instructions for Docker on Windows can be found [here](https://docs.docker.com/docker-for-windows/install/).  It's a little fiddly to get the Hyper-V stuff right and will demand a restart.
-
-Use the UDP gateway stack and launch via ```docker-compose -f docker-compose.gateway.udp.yml up --scale copter=3```.  Open the Docker Desktop and the Containers/Apps screen should show as below, if you click on the expanding arrow next to ardupilot-sitl-docker.  You can explore the resources and output of each element by clicking on its name.
-
-![Docker screenshot](docker_win_screen.png)
-
-Then fire up Mission Planner, select UDPCl (UDP client) as the connection type at top right, and hit connect.  Enter 127.0.0.1 as host and 14554 as port number.  It is rather slow to get going as downloading three sets of params takes on the order of a minute.  You should see three copters as below.
-
-You can fly the drones around by hand, using Guided mode.  Use the drop-down box at the top right to choose which drone you're talking to.  It's rather slow - be prepared to have to repeat commands.
-
-
-### QGroundControl on Linux
-
-I was using Ubuntu 18.04 and the latest QGC as of November 2020.
-
-Use the default stack without the gateway: ```docker-compose up --scale copter=9```
-
-The launch QGC and add a connection on UDP listening to port 14553.  You should see nine drones in different places.  Select "Multi-UAV" in QGC using the radio button at top right and you should see nine little info screens.  You can choose which drone to control using the drop-down at top centre.
-
-| The combination of Linux and QGC seems to allow the UDP stream to be picked up outside Docker.  I couldn't reproduce this on Windows or Mission Planner so it should be regarded as brittle.
 
 ## Environment Variable Reference
 
@@ -108,8 +60,8 @@ The default command of the container runs a [launch script](https://github.com/a
 * SITL_EXE : the executable filename from Ardupilot's ```/build/sitl/bin``` folder : default is ```arducopter```
 * SITL_OPTS : options for SITL besides ```--home``` and ```-sysid```: default is ```--model=quad --defaults=/home/pilot/ardupilot/Tools/autotest/default_params/copter.parm```
 
+NOTE: The copter.parm, plane.parm, and quadplane.parm vehicle configuration settings are local copies of the default ones. This means you can make edits to the parameters to suit your own setup and they are not lost each time you compile the docker image. For example setting cruise airspeeds or maximum roll/pich angles.
+
 ## Similar Work
 
-(https://hub.docker.com/r/edrdo/ardupilot-sitl-docker) was the inspiration for this work
-
-See also (https://hub.docker.com/r/radarku/ardupilot-sitl) and many more found by searching on Docker hub.
+(https://hub.docker.com/r/edrdo/ardupilot-sitl-docker) was the inspiration for this work. See also (https://hub.docker.com/r/radarku/ardupilot-sitl) and many more found by searching on Docker hub.
