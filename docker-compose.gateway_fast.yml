@@ -81,6 +81,9 @@ services:
         condition: service_healthy
       plane:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD", "pgrep", "-x", "mavp2p"]
+      interval: 5s
     ports:
       - "14554:14554/tcp"
       - "14555:14555/tcp"
