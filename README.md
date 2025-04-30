@@ -11,7 +11,9 @@ Rather than pull from a docker hub, this simulation has been configured to run l
 Then run a multi-agent simulation using:
 
 ```docker compose -f docker-compose.gateway.yml up --scale copter=5 --scale plane=5 --scale quadp=5```
+
 or 
+
 ```docker compose -f docker-compose.gateway.yml up --scale copter=5 --scale plane=5 --scale quadp=5 --detach```
 
 The ```copter=5``` type arguments indicates the number of agents of various types. The system will reliably work up to ~18 agents (total across all frame types). If you only want a particular type, the others must be scaled to zero i.e. for no planes ```--scale plane=0```. The ```--detach``` option runs everything in the background.
