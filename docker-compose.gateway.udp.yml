@@ -1,40 +1,82 @@
-version: "3.9"
 services:
+  #There are several services with dependencies. 
+  #1st: the erase script/command must have completed successfully.
+  #2nd: the various SITL drones must have launched
+  #3rd: the central gateway is started
+  
+  #Build local images  with  "docker build -t ardupilot-sitl-docker ."
+  #(don't forget to sync WSL clock with "sudo hwclock -s" in Ubuntu terminal)
 
+
+  #Run the erase IP addresses script.
   erase:
     image: ardupilot-sitl-docker
     container_name: erase
-    command: bash -C '/home/pilot/app/clear_ips.sh'
+    entrypoint: /bin/sh
+    command: -c "/home/pilot/app/clear_ips.sh"
     volumes:
       - shared-content:/home/pilot/ips
-      
+
+
+  #Launch a multicopter drone SITL container
   copter:
-    #build local images  with  "docker build -t ardupilot-sitl-docker ."
-    #(don't forget to sync WSL clock with "sudo hwclock -s" in Ubuntu terminal)
     image: ardupilot-sitl-docker
+    environment:
+      - SITL_EXE=arducopter
+      - SITL_OPTS=--model quad --defaults=/home/pilot/app/copter.parm
+    #entrypoint: /bin/sh
+    #command: -c "/home/pilot/app/launch_copter.sh"
     depends_on:
-      - "erase"
+      erase:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "pgrep", "-x", "arducopter"]
+      interval: 5s
     volumes:
       - shared-content:/home/pilot/ips
       
-#  quadp:
-#    image: ardupilot-sitl-docker
-#    environment:
-#      - SITL_EXE=arduplane
-#      - SITL_OPTS=--model quadplane --defaults=/home/pilot/app/quadplane.parm
-#    depends_on:
-#      - "erase"
-#    volumes:
-#      - shared-content:/home/pilot/ips
-      
+  #Launch a fixed-wing drone SITL container
+  plane:
+    image: ardupilot-sitl-docker
+    environment:
+      - SITL_EXE=arduplane
+      - SITL_OPTS=--model plane --defaults=/home/pilot/app/plane.parm
+    depends_on:
+      erase:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "pgrep", "-x", "arduplane"]
+      interval: 5s
+    volumes:
+      - shared-content:/home/pilot/ips
+    
+  #Launch a quadplane SITL container
+  quadp:
+    image: ardupilot-sitl-docker
+    environment:
+      - SITL_EXE=arduplane
+      - SITL_OPTS=--model quadplane --defaults=/home/pilot/app/quadplane.parm
+    depends_on:
+      erase:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "pgrep", "-x", "arduplane"]
+      interval: 5s
+    volumes:
+      - shared-content:/home/pilot/ips
+   
+
+  #Launch the gateway
   mavgw:
     image: ardupilot-sitl-docker
     container_name: mavgw
+    entrypoint: /bin/sh
+    command: -c "/home/pilot/app/gateway.sh 2"
     depends_on:
-      - "erase"
-      - "copter"
-    #command: ../mavp2p --hb-systemid=123 udps:0.0.0.0:14553 tcps:0.0.0.0:14554 tcps:0.0.0.0:14555
-    command: bash -C '/home/pilot/app/gateway.sh'
+      erase:
+        condition: service_completed_successfully
+      copter:
+        condition: service_healthy
     ports:
       - "14554:14554/tcp"
       - "14555:14555/tcp"
@@ -44,4 +86,5 @@ services:
       
 volumes:
   shared-content:
-        
+  
+#end of file     

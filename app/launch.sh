@@ -1,6 +1,9 @@
 #!/bin/bash 
-#Wait to allow the ip file erase to occur
-sleep 10
+
+echo " "
+echo "STEP2(s)"
+echo "Launching SITL..."
+
 o="../ips/sitl_ip.txt"
 #ip a
 if [ -z "$SYSID" ]
@@ -22,23 +25,18 @@ echo "LAUNCH.SH: System ID will be $SYSID"
 if [ -z "$STARTPOSE" ]
 then
   echo "LAUNCH.SH: taking STARTPOSE from starts.txt file"
-  STARTPOSE=$(tail -n +$SYSID /home/pilot/app/starts.txt | head -n 1)
+  STARTPOSE=$(tail -n +$SYSID /home/pilot/app/starts_llanbedr.txt | head -n 1)
 fi
 echo "LAUNCH.SH: Start location will be $STARTPOSE"
 
 if [ -z "$SITL_EXE" ]
 then
   SITL_EXE='arducopter'
-  #SITL_EXE=sim_vehicle.py
-  #SITL_EXE='arduplane'
 fi
 
 if [ -z "$SITL_OPTS" ]
 then
   SITL_OPTS='--model=quad --defaults=/home/pilot/app/copter.parm '
-  #SITL_OPTS='-v ArduPlane -j4 -f quadplane --console --map '
-  #SITL_OPTS='-v ArduPlane -w '
-  #SITL_OPTS='--model quadplane --defaults=/home/pilot/app/quadplane.parm '
 fi
 
 #echo "LAUNCH.SH: /home/pilot/ardupilot/build/sitl/bin/$SITL_EXE --sysid=$SYSID --home=$STARTPOSE $SITL_OPTS"
