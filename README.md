@@ -53,7 +53,7 @@ This work was branched from (https://github.com/arthurrichards77/ardupilot_sitl_
 
 ## Environment Variable Reference
 
-The default command of the container runs a [launch script](https://github.com/arthurrichards77/ardupilot_sitl_docker/blob/master/app/launch.sh) which employs environment variables to enable customization.  The full list of these is below, including their default settings.  Of course, everything can be customized by overriding the command via Docker.
+The default command of the container runs a [launch script] which employs environment variables to enable customization.  The full list of these is below, including their default settings. Of course, everything can be customized by overriding the command via Docker.
 
 * SYSID : the target system ID, i.e. ```--sysid``` of the drone in the range 1-255 : default is the last number of the IP address
 * STARTPOSE : the ```--home``` location for the drone in format lat,lon,alt,yaw 
