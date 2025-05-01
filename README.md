@@ -1,6 +1,8 @@
 # Ardupilot SITL Docker
 
-Docker image/container for multi-agent Ardupilot Software-in-the-Loop simulation. This one targets multi-vehicle simulation by exploiting the new (Oct 2020) capability in [Ardupilot](https://github.com/ArduPilot/ardupilot) to set the System ID via the command line.  
+Docker image/container for multi-agent Ardupilot Software-in-the-Loop simulation. This one targets multi-vehicle simulation by exploiting the new (Oct 2020) capability in [Ardupilot](https://github.com/ArduPilot/ardupilot) to set the System ID via the command line. 
+
+[WORK IN PROGRESS] This has now been expanded to include surface rovers, surface boats, and submarines (ROVs).
 
 ## Build and run local (tested on Windows)
 
@@ -10,11 +12,11 @@ Rather than pull from a docker hub, this simulation has been configured to run l
  
 Then run a multi-agent simulation using:
 
-```docker compose -f docker-compose.gateway.yml up --scale copter=5 --scale plane=5 --scale quadp=5```
+```docker compose -f docker-compose.gateway.yml up --scale copter=5 --scale plane=5 --scale quadp=5 --scale rover=0 --scale boat=0 --scale sub=0```
 
 or 
 
-```docker compose -f docker-compose.gateway.yml up --scale copter=5 --scale plane=5 --scale quadp=5 --detach```
+```docker compose -f docker-compose.gateway.yml up --scale copter=5 --scale plane=5 --scale quadp=5 --scale rover=0 --scale boat=0 --scale sub=0 --detach```
 
 The ```copter=5``` type arguments indicates the number of agents of various types. The system will reliably work up to ~18 agents (total across all frame types). If you only want a particular type, the others must be scaled to zero i.e. for no planes ```--scale plane=0```. The ```--detach``` option runs everything in the background.
 
