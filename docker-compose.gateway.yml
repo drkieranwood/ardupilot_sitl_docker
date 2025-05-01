@@ -64,6 +64,52 @@ services:
       interval: 5s
     volumes:
       - shared-content:/home/pilot/ips
+      
+  #Launch a rover (wheeled) SITL container
+  rover:
+    image: ardupilot-sitl-docker
+    environment:
+      - SITL_EXE=ardurover
+      - SITL_OPTS=--model rover --defaults=/home/pilot/app/rover.parm
+    depends_on:
+      erase:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "pgrep", "-x", "ardurover"]
+      interval: 5s
+    volumes:
+      - shared-content:/home/pilot/ips
+      
+  #Launch a rover (motorboat) SITL container
+  boat:
+    image: ardupilot-sitl-docker
+    environment:
+      - SITL_EXE=ardurover
+      - SITL_OPTS=--model motorboat --defaults=/home/pilot/app/motorboat.parm
+    depends_on:
+      erase:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "pgrep", "-x", "ardurover"]
+      interval: 5s
+    volumes:
+      - shared-content:/home/pilot/ips
+      
+  #Launch a sub (submarine) SITL container
+  sub:
+    image: ardupilot-sitl-docker
+    environment:
+      - SITL_EXE=ardusub
+      - SITL_OPTS=--model vectored_6dof --defaults=/home/pilot/app/sub.parm
+      #- SITL_OPTS=--model gazebo-bluerov2 --defaults=/home/pilot/app/sub.parm
+    depends_on:
+      erase:
+        condition: service_completed_successfully
+    healthcheck:
+      test: ["CMD", "pgrep", "-x", "ardusub"]
+      interval: 5s
+    volumes:
+      - shared-content:/home/pilot/ips
    
 
   #Launch the gateway

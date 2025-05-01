@@ -26,10 +26,15 @@ WORKDIR ardupilot
 RUN pip3 install empy==3.3.4
 RUN pip3 install future lxml pymavlink MAVProxy pexpect
 
-#Build arducopter (rotary) and arduplane (fixed-wing/quadplane)
+#Build arducopter (rotary), arduplane (fixed-wing/quadplane)
+#ardurover (wheeled, walker, surface-boat), ardusub (submarine/ROV),
+#and ardu'heli' (single-rotary)
 RUN ./waf configure --board sitl
 RUN ./waf copter
 RUN ./waf plane
+RUN ./waf rover
+RUN ./waf sub
+RUN ./waf heli
 
 #Install tools required for MAVLink routing
 RUN apt-get install -y iproute2
