@@ -4,6 +4,22 @@ Docker image/container for multi-agent Ardupilot Software-in-the-Loop simulation
 
 [WORK IN PROGRESS] This has now been expanded to include surface rovers, surface boats, and submarines (ROVs).
 
+## Prerequisites/Installs Needed (last tested 02/11/2025)
+
+1) Download and install [Docker Desktop](https://www.docker.com/).
+   - This repository has all been developed and tested in the Windows AMD64 version, but there is no reason it shouldn't be portable in other OS/chipsets (that's the point of Docker). https://www.docker.com/
+   - Docker in Windows relies on an underlying WSL [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install), so ensure that all installs correctly too as needed.
+   - There is no need to make Docker accounts or sign up. It works without.
+2) Clone this repo using your favourite tool (e.g. [git](https://git-scm.com/)), or just click the "<> Code" button above and "Download ZIP" and extract.
+   - Recommended that its downloaded to a short file path. e.g. ```C:\GitRepos\ardupilot_sitl_docker\```
+3) Install [Mission Planner](https://ardupilot.org/planner/docs/mission-planner-installation.html)
+4) Start Docker Desktop. Check the system tray shows the Docker logo and the status is running.
+5) Navigate to the repository folder and open a Windows PowerShell in this directory.
+   - Hold shift and right click in an empty space in the folder - there should be a "Open PowerShell window here" option in the context menu.
+   - Else, use 'cd' commands
+   - The prompt should show something like ```PS C:\GitProjects\ardupilot_sitl_docker>```
+
+
 ## Build and run local (tested on Windows)
 
 Rather than pull from a docker hub, this simulation has been configured to run locally. After cloning the repo. First run the following command to build the Docker image:
@@ -45,6 +61,18 @@ The Docker containers (i.e. each SITL of the drone swarm) should be terminated u
 
 ```docker container prune```
 
+## Potential Issues
+
+###Ports and firewalls
+The system relies on all of the arduXXX telemetry streams being combined into a single place. The ports used might be blocked by your firewall.
+
+###Admin permissions
+Depending on your administrative privileges, some of the PowerShell scripts might need to be run as 'admin'.
+
+###CPU power
+If running multiple instances, and the system is slow, you might not have enough CPU performance. Check Task Manager.
+
+
 ## Updates
 
 * All uses of MAVProxy have been removed and replaced with [mavp2p](https://github.com/aler9/mavp2p).
@@ -54,8 +82,10 @@ The Docker containers (i.e. each SITL of the drone swarm) should be terminated u
 * (work in progress) The ```copter.parm``` file has been embedded in the Docker image to allow for custom vehicle setups.
 * Three vehicle types can now be run in parallel - quadcopter, plane, quadplane.
 * Significantly reduced the startup time. No need for a 40s dealy now.
+* Rover, ROV (sub), and boat are options but work less smoothly with Mission Planner. 
 
-## Original branch
+
+## Original branch docs (below this title)
 
 This work was branched from (https://github.com/arthurrichards77/ardupilot_sitl_docker) and the original instructions are below. This branch has been optimised specifically for multi-agent simulation, hence some of the original features might now be broken. It is recomended that the ```docker-compose.gateway.udp.yml``` always be used to start the containers.
 
