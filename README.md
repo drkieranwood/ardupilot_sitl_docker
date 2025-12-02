@@ -5,10 +5,11 @@ Docker image/container for multi-agent Ardupilot Software-in-the-Loop simulation
 [WORK IN PROGRESS] This has now been expanded to include surface rovers, surface boats, and submarines (ROVs).
 
 ## Prerequisites/Installs Needed (last tested 02/11/2025)
-
+0) This will need a good amount of free storage space. Some of the apps below will consume multiple gigabytes of space.
 1) Download and install [Docker Desktop](https://www.docker.com/).
-   - This repository has all been developed and tested in the Windows AMD64 version, but there is no reason it shouldn't be portable in other OS/chipsets (that's the point of Docker). https://www.docker.com/
+   - This repository has all been developed and tested in the Windows AMD64 version, but there is no reason it shouldn't be portable in other OS/chipsets (that's the point of Docker).
    - Docker in Windows relies on an underlying WSL [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install), so ensure that all installs correctly too as needed.
+        - Docker might prompt and help handle this install on first launch (worked on Windows 11)
    - There is no need to make Docker accounts or sign up. It works without.
 2) Clone this repo using your favourite tool (e.g. [git](https://git-scm.com/)), or just click the "<> Code" button above and "Download ZIP" and extract.
    - Recommended that its downloaded to a short file path. e.g. ```C:\GitRepos\ardupilot_sitl_docker\```
@@ -18,6 +19,8 @@ Docker image/container for multi-agent Ardupilot Software-in-the-Loop simulation
    - Hold shift and right click in an empty space in the folder - there should be a "Open PowerShell window here" option in the context menu.
    - Else, use 'cd' commands
    - The prompt should show something like ```PS C:\GitProjects\ardupilot_sitl_docker>```
+6) Run the commands below.
+   - The first time ```build``` is run might take some time. It effectively downloads a small Linux OS, clones the Ardupilot repository, and compiles ArduCopter, ArduRover, ArduPlane etc...
 
 
 ## Build and run local (tested on Windows)
@@ -78,11 +81,12 @@ If running multiple instances, and the system is slow, you might not have enough
 * All uses of MAVProxy have been removed and replaced with [mavp2p](https://github.com/aler9/mavp2p).
 * The multi-layer MAVLink message routing has been simplified to use a single gateway router connected directly to the container SITL instances. This significantly reduced CPU load and reduced unnessesary message routing.
 * The SITL is no longer staretd as a background service to prevent orphaned SITL instances.
-* Automatic starting locations now at Fenswood Farm in Bristol.
+* Automatic starting locations now at Fenswood Farm in Bristol (defunct now)
 * (work in progress) The ```copter.parm``` file has been embedded in the Docker image to allow for custom vehicle setups.
 * Three vehicle types can now be run in parallel - quadcopter, plane, quadplane.
 * Significantly reduced the startup time. No need for a 40s dealy now.
-* Rover, ROV (sub), and boat are options but work less smoothly with Mission Planner. 
+* Rover, ROV (sub), and boat are options but work less smoothly with Mission Planner.
+* Start locations moved to Snowdonia Aerospace Center
 
 
 ## Original branch docs (below this title)
